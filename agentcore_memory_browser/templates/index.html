@@ -184,6 +184,56 @@
                         </div>
                     </div>
 
+                    <!-- Add Event Section -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-plus-circle me-2"></i>
+                                Add Event
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="add-event-actor" class="form-label">Actor ID</label>
+                                    <input type="text" id="add-event-actor" class="form-control" placeholder="default" value="default">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="add-event-session" class="form-label">Session ID</label>
+                                    <input type="text" id="add-event-session" class="form-control" placeholder="default" value="default">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="add-event-role" class="form-label">Role</label>
+                                    <select id="add-event-role" class="form-select">
+                                        <option value="USER" selected>User</option>
+                                        <option value="ASSISTANT">Assistant</option>
+                                        <option value="TOOL">Tool</option>
+                                        <option value="OTHER">Other</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="add-event-type" class="form-label">Content Type</label>
+                                    <select id="add-event-type" class="form-select">
+                                        <option value="text" selected>Plain Text</option>
+                                        <option value="json">JSON</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="add-event-content" class="form-label">Content</label>
+                                <textarea id="add-event-content" class="form-control" rows="3" placeholder="Enter content..."></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <button class="btn btn-primary" onclick="executeAddEvent()">
+                                    <i class="bi bi-plus-circle me-2"></i>Add Event
+                                </button>
+                            </div>
+                            <div id="add-event-results"></div>
+                        </div>
+                    </div>
+
                     <!-- List Events Section -->
                     <div class="card mb-4">
                         <div class="card-header bg-warning text-dark">
@@ -197,11 +247,11 @@
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label for="global-actor-id" class="form-label">Actor ID</label>
-                                    <input type="text" id="global-actor-id" class="form-control" placeholder="Enter actor ID...">
+                                    <input type="text" id="global-actor-id" class="form-control" placeholder="default" value="default">
                                 </div>
                                 <div class="col-md-6">
                                     <label for="global-session-id" class="form-label">Session ID</label>
-                                    <input type="text" id="global-session-id" class="form-control" placeholder="Enter session ID...">
+                                    <input type="text" id="global-session-id" class="form-control" placeholder="default" value="default">
                                 </div>
                             </div>
                             <div class="mb-3">

@@ -821,6 +821,56 @@ async function refreshData() {
 let currentSessionId = null;
 let currentActorId = null;
 
+// Execute Add Event (global, at memory level)
+async function executeAddEvent() {
+    if (!currentMemory) {
+        console.error('No memory selected');
+        return;
+    }
+
+    const resultsDiv = document.getElementById('add-event-results');
+    const contentInput = document.getElementById('add-event-content');
+    const typeSelect = document.getElementById('add-event-type');
+    const roleSelect = document.getElementById('add-event-role');
+    const actorInput = document.getElementById('add-event-actor');
+    const sessionInput = document.getElementById('add-event-session');
+
+    await executeApiCall({
+        resultsDiv,
+        validation: () => {
+            if (!contentInput.value.trim()) {
+                showWarning(resultsDiv, 'Please enter content.');
+                return false;
+            }
+            return true;
+        },
+        apiCall: async () => {
+            const response = await fetch(`/api/memories/${currentMemory.id}/records`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    content: contentInput.value.trim(),
+                    contentType: typeSelect.value,
+                    role: roleSelect.value,
+                    actorId: actorInput.value.trim() || 'default',
+                    sessionId: sessionInput.value.trim() || 'default'
+                })
+            });
+            if (!response.ok) {
+                const err = await response.json();
+                throw new Error(err.detail || response.statusText);
+            }
+            return await response.json();
+        },
+        displayFunction: (container, result) => {
+            container.innerHTML = `<div class="alert alert-success"><i class="bi bi-check-circle me-2"></i>${result.message} (Event ID: ${result.eventId})</div>`;
+            contentInput.value = '';
+        },
+        loadingMessage: "Creating event...",
+        errorPrefix: "Error creating event"
+    });
+}
+
 // Execute Global List Events (from main section, not strategy-specific)
 async function executeGlobalListEvents() {
     if (!currentMemory) {
@@ -1040,12 +1090,14 @@ function initializeStrategyNamespaces(strategy, index) {
         const memoryRecordsNamespaceInput = document.getElementById(`strategy-${index}-namespace`);
         const retrieveNamespaceInput = document.getElementById(`strategy-${index}-retrieve-namespace`);
 
+        const ns = getSimplifiedNamespace(strategy);
+
         if (memoryRecordsNamespaceInput && !memoryRecordsNamespaceInput.value) {
-            memoryRecordsNamespaceInput.value = getSimplifiedNamespace(strategy);
+            memoryRecordsNamespaceInput.value = ns;
         }
 
         if (retrieveNamespaceInput && !retrieveNamespaceInput.value) {
-            retrieveNamespaceInput.value = getSimplifiedNamespace(strategy);
+            retrieveNamespaceInput.value = ns;
         }
     }, 100);
 }

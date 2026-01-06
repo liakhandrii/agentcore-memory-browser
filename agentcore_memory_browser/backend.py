@@ -144,6 +144,16 @@ class RetrieveRequest(BaseModel):
     nextToken: Optional[str] = None
 
 
+class CreateRecordRequest(BaseModel):
+    """Request for creating a memory record via event"""
+
+    content: str
+    contentType: str = "text"  # "text" or "json"
+    actorId: str = "default"
+    sessionId: str = "default"
+    role: str = "USER"  # USER, ASSISTANT, TOOL, OTHER
+
+
 # --- Helper Functions ---
 
 
@@ -380,6 +390,50 @@ async def delete_memory_record(
         raise HTTPException(status_code=404, detail="Memory record not found")
     except Exception as e:
         logger.error(f"Error deleting memory record {record_id}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/memories/{memory_id}/records")
+async def create_memory_record(
+    memory_id: str, request: CreateRecordRequest
+) -> Dict[str, Any]:
+    """Create a new memory record via event"""
+    import json as json_module
+
+    try:
+        # Validate JSON if contentType is json
+        content_text = request.content
+        if request.contentType == "json":
+            try:
+                json_module.loads(content_text)
+            except json_module.JSONDecodeError as e:
+                raise HTTPException(status_code=400, detail=f"Invalid JSON: {e}")
+
+        response = bedrock_data.create_event(
+            memoryId=memory_id,
+            actorId=request.actorId or "default",
+            sessionId=request.sessionId or "default",
+            eventTimestamp=datetime.now(),
+            payload=[
+                {
+                    "conversational": {
+                        "content": {"text": content_text},
+                        "role": request.role,
+                    }
+                }
+            ],
+        )
+
+        return {
+            "success": True,
+            "message": "Event created successfully",
+            "eventId": response.get("event", {}).get("eventId"),
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating event: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
