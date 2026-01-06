@@ -403,9 +403,22 @@ async def create_memory_record(
     try:
         # Validate JSON if contentType is json
         content_text = request.content
+        payload=[
+            {
+                "conversational": {
+                    "content": {"text": content_text},
+                    "role": request.role,
+                }
+            }
+        ]
         if request.contentType == "json":
             try:
                 json_module.loads(content_text)
+                payload=[
+                    {
+                        "blob": content_text
+                    }
+                ]
             except json_module.JSONDecodeError as e:
                 raise HTTPException(status_code=400, detail=f"Invalid JSON: {e}")
 
@@ -414,14 +427,7 @@ async def create_memory_record(
             actorId=request.actorId or "default",
             sessionId=request.sessionId or "default",
             eventTimestamp=datetime.now(),
-            payload=[
-                {
-                    "conversational": {
-                        "content": {"text": content_text},
-                        "role": request.role,
-                    }
-                }
-            ],
+            payload=payload,
         )
 
         return {
